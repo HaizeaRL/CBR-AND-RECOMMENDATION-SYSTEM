@@ -19,6 +19,6 @@ red = pd.read_csv(os.path.join("../files","red_wines_categorized.csv"))
 white = pd.read_csv(os.path.join("../files","white_wines_categorized.csv"))
 
 # VISUALIZING PROFILE
-pos = 0
+pos = 444
 wpf.create_radar_plot(red.iloc[pos], title=f"RED: Profile of Wine: #{pos+1}")
 wpf.create_radar_plot(white.iloc[pos], title=f"WHITE: Profile of Wine: #{pos+1}")
