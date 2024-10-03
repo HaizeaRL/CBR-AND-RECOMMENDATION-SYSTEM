@@ -14,11 +14,11 @@ wpf.wine_profiling("../files","red_wines.csv") # red wines
 wpf.wine_profiling("../files","white_wines.csv") # white wines
 
 
-'''# VALIDATE PROFILE CREATION 
+# VALIDATE PROFILE CREATION 
 red = pd.read_csv(os.path.join("../files","red_wines_categorized.csv"))
-print(red)
+white = pd.read_csv(os.path.join("../files","white_wines_categorized.csv"))
 
-VISUALIZING PROFILE
+# VISUALIZING PROFILE
 pos = 0
-wpf.create_radar_plot(red.iloc[pos], title=f"Profile of Wine: #{pos+1}")'''
-   
+wpf.create_radar_plot(red.iloc[pos], title=f"RED: Profile of Wine: #{pos+1}")
+wpf.create_radar_plot(white.iloc[pos], title=f"WHITE: Profile of Wine: #{pos+1}")

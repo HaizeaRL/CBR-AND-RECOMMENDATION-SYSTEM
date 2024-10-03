@@ -2,6 +2,10 @@
 
 import os
 import pandas as pd
+
+import matplotlib
+matplotlib.use('TkAgg')
+
 import matplotlib.pyplot as plt
 import numpy as np
 from math import pi
@@ -67,7 +71,8 @@ def plot_hist_with_percentiles (df, col, percent_min, percent_max):
         Plot corresponding histogram and returns:
         percentiles: specified percentile values of selected column
     """    
-    fig, ax = plt.subplots(figsize = (10,5))
+    percentiles = np.percentile(df[col], [percent_min, percent_max]) 
+    '''fig, ax = plt.subplots(figsize = (10,5))
     ax.hist(df[col])
 
     # Calculate percentiles & add vertical lines for each percentile
@@ -78,7 +83,7 @@ def plot_hist_with_percentiles (df, col, percent_min, percent_max):
     ax.set_title(col)
     ax.set_xlabel(col)
     ax.set_ylabel("Frequency")
-    plt.show()
+    #plt.show()'''
     
     return percentiles # return percentile values
 
@@ -185,6 +190,20 @@ def map_value_to_position(key, val):
     """    
     return descriptor_values[key].index(val)
 
+def key_from_value(value):
+    """
+    Function that return the corresponding descriptor according to its value from descriptor_dict
+    dictionary.
+
+    Parameters:
+        value (str): descriptor category.
+
+    Returns:
+       returns descriptor value, dictionary key
+    """    
+    for key,val in descriptor_dict.items():
+        if val == value:
+            return key
 
 # Create a radar plot for the descriptors
 def create_radar_plot(row, title):
@@ -201,7 +220,6 @@ def create_radar_plot(row, title):
 
     # Prepare categories and corresponding values
     categories = ['Sweetness', 'Nuance', 'Tannicity', 'Body', 'Vibrancy']    
-    # obtain descriptor value position
     values = [map_value_to_position(key, row[key]) for key in categories]
     values += values[:1]  # Repeat the first value at the end to close the circle
 
@@ -215,28 +233,30 @@ def create_radar_plot(row, title):
 
     # Draw one axis per variable and add labels
     ax[0].set_xticks(angles[:-1])
-    ax[0].set_xticklabels(categories)
+    ax[0].set_xticklabels(categories,size =15)
 
-    # Draw y-labels 
+    # Draw y-labels (customizable based on your data scale)
     ax[0].set_rlabel_position(30)
     plt.yticks([0, 1, 2], ["0", "1", "2"], color="grey", size=7)
-    plt.ylim(0, 2)
+    plt.ylim(0, 2)  # Adjust depending on your value range 
 
     # Plot the radar chart
     ax[0].plot(angles, values, linewidth=2, linestyle='solid', label=title)
     ax[0].fill(angles, values, alpha=0.25)  # Fill area under the graph
     
-    # Set title for the radar plot
-    ax[0].set_title(title, size=15, color='navy', y=1.1)
-
-    # Add summary text into the right side
+    # Summary on the right side
     ax[1].axis('off')  # Turn off the axis
-    summary_text = "\n".join([f"{cat}: {row[cat]} (Value: {map_value_to_position(cat, row[cat])})" 
-                              for cat in categories])
-    ax[1].text(0.5, 0.5, summary_text, fontsize=12, ha='center', va='center', wrap=True)
-   
-    # Adjust spacing between subplots
-    plt.subplots_adjust(wspace=0.05) 
-    plt.tight_layout()
+
+    # Add summary text
+    summary_text = "\n".join([f"$\\bf{{{cat}}}$: {row[cat]} (V:{round(row[key_from_value(cat)],2)}) " for cat in categories])
+    ax[1].text(0.05, 0.05, summary_text, fontsize=16, ha='center', va='center', wrap=False,
+               bbox=dict(facecolor='white', alpha=0.6, boxstyle='round,pad=0.75'))  # Centered text box with padding
+    
+    # Adjust layout for minimal spacing
+    plt.subplots_adjust(top=0.85, wspace=0.1, left=0.05, right=0.95)  # Maintain some horizontal spacing
+    
+    # Set title for the radar plot
+    ax[1].set_title(title, size=20, color='navy', y=0.75)
+    plt.tight_layout(rect=[0, 0, 1, 0.95])  
     plt.show()
     

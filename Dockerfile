@@ -4,6 +4,14 @@ FROM python:3.7
 # Set the working directory inside the container
 WORKDIR /usr/local/app
 
+# Install system-level dependencies (including tkinter) to matplotlib
+RUN apt-get update && apt-get install -y \
+    python3-tk \
+    libxrender1 \
+    libxext6 \
+    libsm6 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy the requirements.txt file into the container
 COPY requirements.txt .
 
