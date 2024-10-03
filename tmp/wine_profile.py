@@ -65,6 +65,13 @@ df_red.shape
 df_red = df_red.drop(["free sulfur dioxide","total sulfur dioxide","quality"],axis = 1)
 df_red.shape
 
+# CHECK FOR DUPLICITIES & remove if exist
+duplicate_indices = df_red[df_red.duplicated(keep=False)].index
+# remove duplicates
+df_red.shape
+df_red = df_red.drop(duplicate_indices).reset_index()
+df_red.shape
+
 # CREATE COMPLEX DESCRIPTOR VALUES (BODY & VIBRANCY)
 
 # Create new columns with same weight per each contributor
@@ -159,7 +166,8 @@ df_red = categorize_data (df_red, tmp_cols, range_dict, descriptor_dict,
                           10, 90)
    
 df_red.columns
-
+#save files
+df_red.to_csv("../files/red_wines_categorized.csv",index = False)
 
 # CREATE A PDF PROFILE FOR EACH WINE
 # Map position to each descriptor value
@@ -172,11 +180,15 @@ descriptor_values = {"Sweetness":["Dry", "Semi-Dry", "Sweet"],
 def map_value_to_position(key, val, descriptor_values):
     return descriptor_values[key].index(val)
 
-map_value_to_position("Nuance",  "Complex,Spicy", descriptor_values)
-W   
-
 # DRAW SPIDER GRAPHS
 from math import pi
+
+
+def key_from_value(value, d):
+    for key,val in d.items():
+        if val == value:
+            return key
+       
 
 # TODO ADD DESCRIPTION CORRECTLY
 # Create a radar plot for the descriptors
@@ -196,7 +208,7 @@ def create_radar_plot(data, title):
 
     # Draw one axis per variable and add labels
     ax[0].set_xticks(angles[:-1])
-    ax[0].set_xticklabels(categories)
+    ax[0].set_xticklabels(categories,size =15)
 
     # Draw y-labels (customizable based on your data scale)
     ax[0].set_rlabel_position(30)
@@ -207,23 +219,24 @@ def create_radar_plot(data, title):
     ax[0].plot(angles, values, linewidth=2, linestyle='solid', label=title)
     ax[0].fill(angles, values, alpha=0.25)  # Fill area under the graph
     
-    # Set title for the radar plot
-    ax[0].set_title(title, size=15, color='navy', y=1.1)
-
     # Summary on the right side
     ax[1].axis('off')  # Turn off the axis
 
     # Add summary text
-    summary_text = "\n".join([f"{cat}: {data[cat]} (Value: {map_value_to_position(cat, data[cat], descriptor_values)})" for cat in categories])
-    ax[1].text(0.5, 0.5, summary_text, fontsize=12, ha='center', va='center', wrap=True)
-   
-    # Adjust spacing between subplots
-    plt.subplots_adjust(wspace=0.05)  # Reduce the width space between plots
-    plt.tight_layout()
+    summary_text = "\n".join([f"$\\bf{{{cat}}}$: {data[cat]} (V:{round(data[key_from_value(cat,descriptor_dict)],1)}) " for cat in categories])
+    ax[1].text(0.05, 0.05, summary_text, fontsize=16, ha='center', va='center', wrap=False,
+               bbox=dict(facecolor='white', alpha=0.6, boxstyle='round,pad=0.75'))  # Centered text box with padding
+    
+    # Adjust layout for minimal spacing
+    plt.subplots_adjust(top=0.85, wspace=0.1, left=0.05, right=0.95)  # Maintain some horizontal spacing
+    
+    # Set title for the radar plot
+    ax[1].set_title(title, size=20, color='navy', y=0.75)
+    plt.tight_layout(rect=[0, 0, 1, 0.95])  
     plt.show()
     
-    
+i = 444
 for i in range(0,len(df_red)):
-    create_radar_plot(df_red.iloc[i], title=f"Radar Plot for Wine: #{i+1}")
+    create_radar_plot(df_red.iloc[i], title=f"Profile of Wine: #{i+1}")
         
     
