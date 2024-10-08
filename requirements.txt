@@ -1,3 +1,5 @@
 matplotlib
 pyarrow
 pandas
+scikit-learn
+rpy2
