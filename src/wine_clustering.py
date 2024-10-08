@@ -10,18 +10,11 @@ from modules import wine_clustering_functions as wcf
 
 # APPLY CLUSTERING 
 print("Applying clustering to RED wines...")
-wcf.apply_clustering ("../files", "red_wines_categorized.csv")
+red, centroids_red = wcf.apply_clustering ("../files", "red_wines_categorized.csv")
+print("Visualizing RED wines clustering...")
+wcf.plot_clusters(red, centroids_red)
 #
 print("Applying clustering to WHITE wines...")
-wcf.apply_clustering ("../files", "white_wines_categorized.csv")
-
-'''# SHOW RESULTS 
-red = pd.read_parquet(os.path.join("../files","red_wines_clustered.parquet"),engine ="pyarrow")
-print("RED")
-print(red.head())
-print(red["Zone"].value_counts())
-
-white = pd.read_parquet(os.path.join("../files","white_wines_clustered.parquet"),engine ="pyarrow")
-print("\nWHITE")
-print(white.head())
-print(white["Zone"].value_counts())'''
+white, centroids_white = wcf.apply_clustering ("../files", "white_wines_categorized.csv")
+print("Visualizing WHITE wines clustering...")
+wcf.plot_clusters(white, centroids_white)
