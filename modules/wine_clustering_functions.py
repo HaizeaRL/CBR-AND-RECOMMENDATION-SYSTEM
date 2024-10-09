@@ -118,7 +118,7 @@ def apply_clustering (path, filename):
     Scales, determine best cluster number, clusters and add new columns with resulted values.
 
     Parameters:
-        path (str): path to files.
+        path (str): path to data.
         filename (str): filename to load and apply clustering
 
     Returns:

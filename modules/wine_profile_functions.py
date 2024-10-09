@@ -137,7 +137,7 @@ def wine_profiling(path, filename):
     Function that creates wine profile
 
     Parameters:
-        path (str): path to files.
+        path (str): path to data.
         filename (str): filename to use to create profiles.
     Returns:
        NULL

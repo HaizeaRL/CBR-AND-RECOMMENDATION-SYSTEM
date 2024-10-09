@@ -10,13 +10,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from modules import wine_profile_functions as wpf 
 
 # CREATE WINE PROFILES & SAVE
-wpf.wine_profiling("../files","red_wines.csv") # red wines
-wpf.wine_profiling("../files","white_wines.csv") # white wines
+wpf.wine_profiling("../data","red_wines.csv") # red wines
+wpf.wine_profiling("../data","white_wines.csv") # white wines
 
 
 # VALIDATE PROFILE CREATION 
-red = pd.read_csv(os.path.join("../files","red_wines_categorized.csv"))
-white = pd.read_csv(os.path.join("../files","white_wines_categorized.csv"))
+red = pd.read_csv(os.path.join("../data","red_wines_categorized.csv"))
+white = pd.read_csv(os.path.join("../data","white_wines_categorized.csv"))
 
 # VISUALIZING PROFILE
 pos = 444
