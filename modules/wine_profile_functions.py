@@ -35,6 +35,9 @@ descriptor_values = {"Sweetness":["Dry", "Semi-Dry", "Sweet"],
                      "Body": ["Light", "Medium", "Full-Bodied"],
                      "Vibrancy":["Liveliness", "Live", "Brilliant"]}
 
+# wine descriptors
+wine_descriptors = ["Sweetness","Nuance", "Tannicity", "Body", "Vibrancy"]
+
 
 def create_new_value(row, descriptor):
     """
