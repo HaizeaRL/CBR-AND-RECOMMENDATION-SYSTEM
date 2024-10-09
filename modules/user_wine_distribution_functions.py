@@ -186,7 +186,7 @@ def wine_delibery(df, pattern):
         new_distribution.append(n_d)
     return new_distribution
 
-def wine_assginations (wine_distribution, row_distribution):
+def wine_assignations (wine_distribution, row_distribution):
     """
     Function that sum in a combined list:
     - The list of how many wines need to select per zone or cluster (pattern).
@@ -267,11 +267,11 @@ def wine_delibery_conf (path, filename1, filename2):
         red_clusters = len(df_red["Cluster"].unique())
         red_distr = wine_zone_distribution (red_clusters, d["red_wines"])   
         red_distr_delivery = wine_delibery(df_red, red_distr)  
-        d["red_distribution"] = wine_assginations(red_distr, red_distr_delivery)        
+        d["red_distribution"] = wine_assignations(red_distr, red_distr_delivery)        
         white_clusters = len(df_white["Cluster"].unique())
         white_distr = wine_zone_distribution (white_clusters, d["white_wines"])
         white_distr_delivery = wine_delibery(df_white, white_distr)  
-        d["white_distribution"] = wine_assginations(white_distr, white_distr_delivery)
+        d["white_distribution"] = wine_assignations(white_distr, white_distr_delivery)
         user_list.append(d)
     
     return user_list
