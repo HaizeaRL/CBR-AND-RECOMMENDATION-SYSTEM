@@ -230,7 +230,7 @@ def save_dict_list_json(path, user_list):
        Saves data as json.
     """ 
 
-    with open(os.path.join(path,"distribution_conf.json"), 'w') as json_file:
+    with open(os.path.join(path,"users_wine_delivery_conf.json"), 'w') as json_file:
         json.dump(user_list, json_file)
 
     
