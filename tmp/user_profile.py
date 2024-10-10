@@ -131,16 +131,16 @@ def map_value_to_position(key, val):
     return descriptor_values[key].index(val)
 
 
-def create_radar_plot(average_df, title):
+def create_radar_plot(average_df, title, save_path):
     """
     Function that plots a radar or spider plot according to average wine profile.
     
     Parameters:
         average_df (pd.DataFrame): DataFrame containing average positions for each descriptor.
-        title (str): Title to assign to the plot.
-
+        title (str): Title to assign to the plot
+        save_path (str) : Path to save the plot
     Returns:
-       Plots radar plot corresponding to average wine profile.
+       Plots radar graph corresponding to average wine profile and saves as png.
     """  
 
     # Prepare categories and corresponding values
@@ -180,12 +180,13 @@ def create_radar_plot(average_df, title):
     # Set title for the radar plot
     ax[1].set_title(title, size=20, color='navy', y=0.90)
 
-    # Show the plot
-    plt.show()
+    # save file   
+    os.makedirs(save_path, exist_ok=True)
+    plt.savefig(os.path.join(save_path, title + '.png'), bbox_inches='tight', pad_inches=0.5)
 
 
 
-def visualize_wine_profile(df, title):
+def visualize_wine_profile(df, title, save_path):
     
     # Applying the mapping function to each row
     df_f = pd.DataFrame()
@@ -203,7 +204,8 @@ def visualize_wine_profile(df, title):
     average_df = pd.DataFrame.from_dict(average_values, orient='index', columns=['Average Position']).reset_index()
     average_df.rename(columns={'index': 'Descriptor'}, inplace=True)
 
-    create_radar_plot(average_df, title)
+    
+    create_radar_plot(average_df, title, save_path)
     
             
 # recover users_list  
@@ -222,9 +224,10 @@ user_data
 print(user_white_catalogue)'''
 
 # red
-visualize_wine_profile(user_red_catalogue, f"Red_wines profile\n\nUser {user_id}")
+save_path = "C:/DATA_SCIENCE_HAIZEA/CBR-AND-RECOMMENDATION-SYSTEM/report"
+visualize_wine_profile(user_red_catalogue, "Red_wines_profile", save_path)
 # white
-visualize_wine_profile(user_white_catalogue, f"White_wines profile\n\nUser {user_id}")
+visualize_wine_profile(user_white_catalogue, "White_wines_profile", save_path)
 
 
     
