@@ -131,9 +131,11 @@ def apply_clustering (path, filename):
     df = pd.read_csv(os.path.join(path, filename))
 
     # APPLY CLUSTERING 
+    print("\tDETERMINING BEST CLUSTER NUMBER...")
     X_scaled, n_clusters, kmeans, y_kmeans = cluster_data(df)
 
     # DETERMINE EACH WINES ZONE (based on clusters)
+    print("\tDETERMINING WINE ZONES BASED ON CLUSTERS...")
     clusters_zone, clusters_centroid, centroids= create_map_dictionaries (n_clusters, kmeans, y_kmeans)
 
     # add scaled data to origin df
@@ -149,6 +151,7 @@ def apply_clustering (path, filename):
     # save clustered data in correct formats
     new_filename = f"{filename_root}_clustered.parquet"
     df_combined.to_parquet(os.path.join(path,new_filename), engine ="pyarrow")
+
 
     return df_combined, centroids
 

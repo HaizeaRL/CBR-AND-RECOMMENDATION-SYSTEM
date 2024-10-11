@@ -3,3 +3,7 @@ pyarrow
 pandas
 scikit-learn
 rpy2
+beautifulsoup4
+reportlab
+markdown2
+markdown

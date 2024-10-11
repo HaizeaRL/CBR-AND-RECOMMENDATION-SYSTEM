@@ -70,6 +70,8 @@ solution = pd.DataFrame({
 
 print(solution)
 
+# TODO: determine similar to what wine want to recommend. 
 # TODO: use one distance function depending on parameter
 # TODO: visualize centroid, selected row data and nearest data
-# TODO: visualize information in interesting form
+# TODO: visualize wine profile data
+# TODO: Add this summary to users profile data

@@ -106,57 +106,7 @@ def save_images_and_text_as_pdf(image1_path, image2_path, output_pdf_path, markd
 
     # Add the table containing images to the story
     story.append(table)
-    story.append(Spacer(1, 12))  # Add some space after images
-    
-    # Iterate over each Markdown text block
-    for markdown_text in markdown_texts:
-        # Convert Markdown to HTML
-        html_text = markdown(markdown_text)
-    
-        # Parse HTML with BeautifulSoup
-        soup = BeautifulSoup(html_text, 'html.parser')
-    
-        # Handle headers, paragraphs, lists, and tables
-        for element in soup:
-            if element.name == 'h1':
-                paragraph = Paragraph(element.get_text(), styles['Heading1'])
-                story.append(paragraph)
-            elif element.name == 'h2':
-                paragraph = Paragraph(element.get_text(), styles['Heading2'])
-                story.append(paragraph)
-            elif element.name == 'h3':
-                paragraph = Paragraph(element.get_text(), styles['Heading3'])
-                story.append(paragraph)
-            elif element.name == 'ul':  # Handle unordered lists
-                for li in element.find_all('li'):
-                    bullet_point = Paragraph(f'• {li.get_text()}', styles['Normal'])
-                    story.append(bullet_point)
-            elif "|" in element.get_text():  # Detect tables by the presence of pipes ('|')
-                # Split the table into rows and cells
-                rows = [row.split("|")[1:-1] for row in element.get_text().strip().split("\n")]
-                table_data = [[cell.strip() for cell in row] for row in rows]
-                
-                # Create the table for the PDF
-                table = Table(table_data)
-    
-                # Apply styles to the table (header, alternating row colors, grid)
-                table.setStyle(TableStyle([
-                    ('BACKGROUND', (0, 0), (-1, 0), colors.grey),  # Header row background
-                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header row text color
-                    ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center align all cells
-                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Bold header row
-                    ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Padding for header row
-                    ('BACKGROUND', (0, 1), (-1, -1), colors.beige),  # Beige background for rows
-                    ('GRID', (0, 0), (-1, -1), 1, colors.black),  # Grid lines for the table
-                ]))
-    
-                # Add the table to the story
-                story.append(table)
-            else:  # Handle normal paragraphs and line breaks
-                # Replace newline characters with proper line breaks for the PDF
-                paragraph_text = element.get_text().replace("\n", "<br />")
-                paragraph = Paragraph(paragraph_text, styles['Normal'])
-                story.append(paragraph)
+    story.append(Spacer(1, 12))  # Add some space after images    
 
     # Build the PDF
     doc.build(story)
