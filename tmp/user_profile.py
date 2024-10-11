@@ -61,9 +61,9 @@ def get_specific_user_info (users_list, user_id):
 
         # Ensure that all keys are considered
         all_keys = list(set(red_zones.keys()).union(white_zones.keys()))
-        all_keys.reverse()
+        sorted_all_keys = sorted(all_keys, key=lambda x: x.replace('_', ''))
 
-        for k in all_keys:
+        for k in sorted_all_keys:
             red_value = red_zones.get(k, 0)  # 0 if key doesn't exit. 
             white_value = white_zones.get(k, 0)  # 0 if key doesn't exit. 
             text += f"\t{k}: {red_value} \t| \t\t {k}: {white_value}\n"
@@ -220,8 +220,6 @@ user_ids
 user_id = '18050'
 user_data, user_red_catalogue, user_white_catalogue = get_specific_user_info (users_list, user_id)
 user_data
-'''print(user_red_catalogue)
-print(user_white_catalogue)'''
 
 # red
 save_path = "C:/DATA_SCIENCE_HAIZEA/CBR-AND-RECOMMENDATION-SYSTEM/report"
@@ -229,7 +227,79 @@ visualize_wine_profile(user_red_catalogue, "Red_wines_profile", save_path)
 # white
 visualize_wine_profile(user_white_catalogue, "White_wines_profile", save_path)
 
+def create_intro_paragraph(user_data):
+    first_paragraph = ""
+    total_wines = user_data['wine_qty']
+    distribution = user_data["distribution"]
+    
+    if distribution == "equal":
+        first_paragraph = f"Based on {total_wines} wines you tasted, you have no preference between red and white wines."
+    else:
+        who_more = distribution.split('_')[1]  # "white" or "red"
+        other = "red" if who_more == "white" else "white"
+        how_more = user_data['how_more']
+        
+        first_paragraph = (f"Based on the {total_wines} wines you tasted, you tend to prefer {who_more} wines.\n"
+                           f"You have tasted {how_more} more {who_more} wines than {other} wines.\n")
+    
+    return first_paragraph
 
+
+def zones_distribution_text(user_data):
+    red_zones = {k: v for d in user_data['red_distribution'] for k, v in d.items() if "_rows" not in k}
+    red_zones_l = {k: v for d in user_data['red_distribution'] for k, v in d.items() if "_rows" in k}
+    white_zones = {k: int(v) for d in user_data['white_distribution'] for k, v in d.items() if "_rows" not in k}
+    white_zones_l = {k: v for d in user_data['white_distribution'] for k, v in d.items() if "_rows" in k}
     
+
+    # Ensure all keys (zones) are considered and sort them alphabetically
+    all_keys = list(set(red_zones.keys()).union(white_zones.keys()))
+    sorted_all_keys = sorted(all_keys, key=lambda x: x.replace('_', ''))
+
+    # Create markdown for wine zone distribution, displaying both red and white side by side
+    reds = user_data['red_wines']
+    whites = user_data['white_wines']
+    markdown_text = f"| Zone | Red Wines ({reds} total) | White Wines ({whites} total) |\n"
+    markdown_text += "|------|-----------|-------------|\n"
+
+    # Iterate through sorted zones and present both red and white values
+    for k in sorted_all_keys:
+        red_value = red_zones.get(k, 0)  # Default to 0 if zone does not exist
+        white_value = white_zones.get(k, 0)  # Default to 0 if zone does not exist
+        
+        # Get references for red and white wines
+        red_refs = red_zones_l.get(f"{k}_rows", [])  # Assuming keys are suffixed with "_rows"
+        white_refs = white_zones_l.get(f"{k}_rows", [])  # Assuming keys are suffixed with "_rows"
+
+       # Convert references to strings to avoid TypeError
+        red_refs_str = ", ".join(map(str, red_refs)) if red_value > 0 else "No references."
+        white_refs_str = ", ".join(map(str, white_refs)) if white_value > 0 else "No references."
+
+        markdown_text += f"| {k} | {'No references.' if red_value == 0 else f'({red_value}) Wine refs: [{red_refs_str}]'} | {'No references.' if white_value == 0 else f'({white_value}) Wine refs: [{white_refs_str}]'} |\n"
+
+    return markdown_text
+
+
+def create_profile_text(user_data):
+    title = f"Profile of the user: {user_data['user']}"
+    first_paragraph = create_intro_paragraph(user_data)
+    zones_distribution = zones_distribution_text(user_data)
+
+    # Build the final markdown text for the profile
+    profile_text = [
+        f"# {title}\n",      
+        f"{first_paragraph}", 
+        "## Zones Distribution:\n",
+        "Your tendency for wines by zones is as follows:\n\n",
+        f"{zones_distribution}",
+        "## Tasting Preferences:\n"
+        "Based on wine descriptors, your wine tasting preferences are distributed as follows:\n\n"
+    ]
     
+    return profile_text
+
+t = create_profile_text(user_data)
+t
+    
+
     
