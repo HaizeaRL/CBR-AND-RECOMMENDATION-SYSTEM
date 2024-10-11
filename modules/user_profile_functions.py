@@ -140,12 +140,13 @@ def map_value_to_position(key, val):
     """    
     return descriptor_values[key].index(val)
 
-def create_radar_plot(average_df, title, save_path):
+def create_radar_plot(average_df, title, user_id, save_path):
     """
     Function that plots a radar or spider plot according to average wine profile.
     
     Parameters:
         average_df (pd.DataFrame): DataFrame containing average positions for each descriptor.
+        user_id (str): User identification code.
         title (str): Title to assign to the plot
         save_path (str) : Path to save the plot
     Returns:
@@ -187,18 +188,21 @@ def create_radar_plot(average_df, title, save_path):
               bbox=dict(facecolor='white', alpha=0.6, boxstyle='round,pad=0.75'))
 
     # Set title for the radar plot
+    
     ax[1].set_title(title, size=20, color='navy', y=0.90)
 
-    # save file   
-    plt.savefig(os.path.join(save_path, title + '.png'), bbox_inches='tight', pad_inches=0.5)
+    # save file
+    title1 = f"{title}_user_{str(user_id)}"
+    plt.savefig(os.path.join(save_path, title1 + '.png'), bbox_inches='tight', pad_inches=0.5)
 
-def create_wine_profile_plots(df, title, save_path):
+def create_wine_profile_plots(df, title, user_id, save_path):
     """
     Function that creates users wine profile radar plots
 
     Parameters:
         df (dataframe):  users wine catalogue
         title (str): title to give to created radar plot.
+        user_id (str): user identification code.
         save_path (str): path to save created radar plot.
 
     Returns: user_data, user_red_catalogue, user_white_catalogue
@@ -224,7 +228,7 @@ def create_wine_profile_plots(df, title, save_path):
     average_df.rename(columns={'index': 'Descriptor'}, inplace=True)
 
     # create plots & save
-    create_radar_plot(average_df, title, save_path)
+    create_radar_plot(average_df, title, user_id, save_path)
 
 def create_intro_paragraph(user_data):
     """
@@ -349,10 +353,10 @@ def create_user_profiles_elements(user_list, user_id):
     user_data, user_red_cat, user_white_cat =  get_specific_user_info (user_list, user_id)
         
     # 2- create red / white wines profiling graphs
-    title_red = f"red_wine_profile_user_{str(user_id)}"
-    create_wine_profile_plots(user_red_cat,title_red ,report_tmp)
-    title_white = f"white_wine_profile_user_{str(user_id)}"
-    create_wine_profile_plots(user_white_cat,title_white ,report_tmp)
+    title_red = f"red_wine_profile"
+    create_wine_profile_plots(user_red_cat, title_red, user_id , report_tmp)
+    title_white = f"white_wine_profile"
+    create_wine_profile_plots(user_white_cat,title_white, user_id , report_tmp)
     
     # 3 - create text in markdown
     markdown_text = create_profile_text(user_data)
@@ -509,8 +513,10 @@ def create_recomendation_pdf(user_list, user_id):
     story.extend(parse_markdown_text(markdown_text, styles))
     
     # Add images
-    image1_path = os.path.join(report_tmp,title_red+".png")
-    image2_path = os.path.join(report_tmp,title_white+".png")
+    image1_name = f"{title_red}_user_{str(user_id)}.png"
+    image2_name = f"{title_white}_user_{str(user_id)}.png"
+    image1_path = os.path.join(report_tmp,image1_name)
+    image2_path = os.path.join(report_tmp,image2_name)
     story.append(create_image_table(image1_path, image2_path))
     story.append(Spacer(1, 12))  # Add some space after images
     
