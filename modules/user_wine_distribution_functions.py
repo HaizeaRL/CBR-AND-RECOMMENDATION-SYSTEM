@@ -248,8 +248,8 @@ def wine_delibery_conf (path, filename1, filename2):
     """ 
 
     # load wine catalogues 
-    df_red = pd.read_parquet(os.path.join(path, filename1+".parquet"), engine ="pyarrow")
-    df_white = pd.read_parquet(os.path.join(path, filename2+".parquet"), engine ="pyarrow")
+    df_red = pd.read_parquet(os.path.join(path, filename1), engine ="pyarrow")
+    df_white = pd.read_parquet(os.path.join(path, filename2), engine ="pyarrow")
 
     # Create users configuration 
     user_list = []

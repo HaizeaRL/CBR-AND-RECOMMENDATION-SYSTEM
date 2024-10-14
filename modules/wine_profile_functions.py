@@ -175,9 +175,14 @@ def wine_profiling(path, filename):
     tmp_cols = [col for col in df.columns if "tmp" in col]
     df = categorize_data (df, tmp_cols, 10, 90)
 
-    # save categorized data
+    # create folder to save data
+    data_path = path.rsplit('files', 1)[0]  # Get the part before 'files'
+    new_data_path = os.path.join(data_path, "data")  # Create new path to data folder
+    os.makedirs(new_data_path, exist_ok=True)
+
+    # save information in new data folder
     new_filename = f"{filename_root}_categorized.csv"
-    df.to_csv(os.path.join(path,new_filename),index =False)
+    df.to_csv(os.path.join(new_data_path, new_filename),index =False)
 
 
 def map_value_to_position(key, val):
