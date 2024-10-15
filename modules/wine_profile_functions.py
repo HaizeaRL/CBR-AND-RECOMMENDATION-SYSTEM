@@ -21,12 +21,7 @@ range_dict = {"residual sugar" : ["Dry", "Semi-Dry", "Sweet"],
      "Body_tmp": ["Light", "Medium", "Full-Bodied"],
      "Vibrancy_tmp": ["Liveliness", "Live", "Brilliant"]}
 
-# relation of columns and new descriptors
-descriptor_dict = {"residual sugar" : "Sweetness",
-     "chlorides": "Nuance",
-     "sulphates": "Tannicity",
-     "Body_tmp": "Body",
-     "Vibrancy_tmp": "Vibrancy"}
+
 
 # Each descriptor position map
 descriptor_values = {"Sweetness":["Dry", "Semi-Dry", "Sweet"],
@@ -198,73 +193,4 @@ def map_value_to_position(key, val):
     """    
     return descriptor_values[key].index(val)
 
-def key_from_value(value):
-    """
-    Function that return the corresponding descriptor according to its value from descriptor_dict
-    dictionary.
 
-    Parameters:
-        value (str): descriptor category.
-
-    Returns:
-       returns descriptor value, dictionary key
-    """    
-    for key,val in descriptor_dict.items():
-        if val == value:
-            return key
-
-# Create a radar plot for the descriptors
-def create_radar_plot(row, title):
-    """
-    Function that plot radar or spyder plot according to wine profile.
-    
-    Parameters:
-        row (pd.DataFrame row): row corresponding to a specific wine profile.
-        title (str): title to assign to the plot
-
-    Returns:
-       plots radar plot corresponding to selected wine profile
-    """  
-
-    # Prepare categories and corresponding values
-    categories = ['Sweetness', 'Nuance', 'Tannicity', 'Body', 'Vibrancy']    
-    values = [map_value_to_position(key, row[key]) for key in categories]
-    values += values[:1]  # Repeat the first value at the end to close the circle
-
-    # Calculate angles for the plot
-    N = len(categories)
-    angles = [n / float(N) * 2 * pi for n in range(N)]
-    angles += angles[:1]  # Close the loop
-
-    # Start creating the radar plot
-    fig, ax = plt.subplots(1, 2, figsize=(12, 6), subplot_kw=dict(polar=True))
-
-    # Draw one axis per variable and add labels
-    ax[0].set_xticks(angles[:-1])
-    ax[0].set_xticklabels(categories,size =15)
-
-    # Draw y-labels (customizable based on your data scale)
-    ax[0].set_rlabel_position(30)
-    plt.yticks([0, 1, 2], ["0", "1", "2"], color="grey", size=7)
-    plt.ylim(0, 2)  # Adjust depending on your value range 
-
-    # Plot the radar chart
-    ax[0].plot(angles, values, linewidth=2, linestyle='solid', label=title)
-    ax[0].fill(angles, values, alpha=0.25)  # Fill area under the graph
-    
-    # Summary on the right side
-    ax[1].axis('off')  # Turn off the axis
-
-    # Add summary text
-    summary_text = "\n".join([f"$\\bf{{{cat}}}$: {row[cat]} (V:{round(row[key_from_value(cat)],2)}) " for cat in categories])
-    ax[1].text(0.05, 0.05, summary_text, fontsize=16, ha='center', va='center', wrap=False,
-               bbox=dict(facecolor='white', alpha=0.6, boxstyle='round,pad=0.75'))  # Centered text box with padding
-    
-    # Adjust layout for minimal spacing
-    plt.subplots_adjust(top=0.85, wspace=0.1, left=0.05, right=0.95)  # Maintain some horizontal spacing
-    
-    # Set title for the radar plot
-    ax[1].set_title(title, size=20, color='navy', y=0.75)
-    plt.tight_layout(rect=[0, 0, 1, 0.95])  
-    plt.show()
-    
