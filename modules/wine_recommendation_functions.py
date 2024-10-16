@@ -4,6 +4,10 @@ import numpy as np
 import pandas as pd
 import os
 
+# wine catalogues 
+df_red = pd.read_parquet(os.path.join("../data", "red_wines_clustered.parquet"), engine ="pyarrow")
+df_white = pd.read_parquet(os.path.join("../data", "white_wines_clustered.parquet"), engine ="pyarrow")
+
 # Functions
 def determine_favorite_zone (zones):
     """
@@ -127,14 +131,12 @@ def get_nearest_wine(df, selected_row_idx , distance):
     # return selected and nearest row
     return solution
 
-def recommend_wines (user_data,  user_red_cat, user_white_cat):
+def recommend_wines (user_data):
     """
     Function that select reference wine and obtain similar wine as recommendation.
 
     Parameters:
         user_data : users wine preferences. User wine profile.
-        user_red_cat: users red wine catalogue.
-        user_white_cat: users white wine catalogue.
 
     Returns: 
         user_data["distribution"] (str): users distribution. Equal, More_white or More_red to determine if both
@@ -153,14 +155,14 @@ def recommend_wines (user_data,  user_red_cat, user_white_cat):
         selected_red_idx = select_wine_from_favorite_zone (user_data["red_distribution"], red)
         
         # Get nearest red wine and get result in comparative way
-        solution_red = get_nearest_wine(user_red_cat, selected_red_idx , "euclidean")
+        solution_red = get_nearest_wine(df_red, selected_red_idx , "euclidean")
                
         # Determine white reference wine
         white = determine_favorite_zone(user_data["white_distribution"])
         selected_white_idx = select_wine_from_favorite_zone (user_data["white_distribution"], white)  
         
         # Get nearest white wine and get result in comparative way
-        solution_white = get_nearest_wine(user_white_cat, selected_white_idx , "euclidean")
+        solution_white = get_nearest_wine(df_white, selected_white_idx , "euclidean")
         
     elif user_data["distribution"] == "more_white":
         
@@ -169,7 +171,7 @@ def recommend_wines (user_data,  user_red_cat, user_white_cat):
         selected_white_idx = select_wine_from_favorite_zone (user_data["white_distribution"], white)
         
         # Get nearest white wine and get result in comparative way
-        solution_white = get_nearest_wine(user_white_cat, selected_white_idx , "euclidean")
+        solution_white = get_nearest_wine(df_white, selected_white_idx , "euclidean")
                     
     else:
         
@@ -178,7 +180,7 @@ def recommend_wines (user_data,  user_red_cat, user_white_cat):
         selected_red_idx = select_wine_from_favorite_zone (user_data["red_distribution"], red)
         
         # Get nearest red wine and get result in comparative way
-        solution_red = get_nearest_wine(user_red_cat, selected_red_idx , "euclidean")
+        solution_red = get_nearest_wine(df_red, selected_red_idx , "euclidean")
         
     return user_data["distribution"] , solution_red , solution_white
 
@@ -203,14 +205,14 @@ def create_recommendation_text(distribution, solution_red, solution_white):
     # complete text in each case
     if distribution == "equal":
         intro_text = "As you have no preference between red and white wines, I am providing a recommendation for each type.\n\n"
-        paragraph1 = f"I recommend a red wine reference from {solution_red['Nearest'].iloc[-1]}: #{solution_red['Nearest'].iloc[0]}, which is very similar to the red wine reference #{solution_red['Selected'].iloc[0]} also from {solution_red['Selected'].iloc[-1]}.\n"
-        paragraph2 = f"I recommend a white wine reference from {solution_white['Nearest'].iloc[-1]}: #{solution_white['Nearest'].iloc[0]}, which is very similar to the white wine reference #{solution_white['Selected'].iloc[0]} also from {solution_white['Selected'].iloc[-1]}.\n"
+        paragraph1 = f"I recommend a red wine reference from {solution_red['Nearest'].iloc[-1]}: #{solution_red['Nearest'].iloc[0]+1}, which is very similar to the red wine reference #{solution_red['Selected'].iloc[0]+1} also from {solution_red['Selected'].iloc[-1]}.\n"
+        paragraph2 = f"I recommend a white wine reference from {solution_white['Nearest'].iloc[-1]}: #{solution_white['Nearest'].iloc[0]+1}, which is very similar to the white wine reference #{solution_white['Selected'].iloc[0]+1} also from {solution_white['Selected'].iloc[-1]}.\n"
     elif distribution == "more_red":
-        intro_text = "Based on your wine preferences.\n\n"
-        paragraph1 = f"I recommend a red wine reference from {solution_red['Nearest'].iloc[-1]}: #{solution_red['Nearest'].iloc[0]}, which is very similar to the red wine reference #{solution_red['Selected'].iloc[0]} also from {solution_red['Selected'].iloc[-1]}.\n"
+        intro_text = "Based on your red wine preferences."
+        paragraph1 = f"I recommend a wine reference from {solution_red['Nearest'].iloc[-1]}: #{solution_red['Nearest'].iloc[0]+1}, which is very similar to the wine reference #{solution_red['Selected'].iloc[0]+1} also from {solution_red['Selected'].iloc[-1]}.\n"
     else:
-        intro_text = "Based on your wine preferences.\n\n"
-        paragraph1 = f"I recommend a white wine reference from {solution_white['Nearest'].iloc[-1]}: #{solution_white['Nearest'].iloc[0]}, which is very similar to the white wine reference #{solution_white['Selected'].iloc[0]} also from {solution_white['Selected'].iloc[-1]}.\n"
+        intro_text = "Based on your white wine preferences."
+        paragraph1 = f"I recommend a wine reference from {solution_white['Nearest'].iloc[-1]}: #{solution_white['Nearest'].iloc[0]+1}, which is very similar to the wine reference #{solution_white['Selected'].iloc[0]+1} also from {solution_white['Selected'].iloc[-1]}.\n"
     
     # markdown type text structure
     text = [
@@ -218,7 +220,7 @@ def create_recommendation_text(distribution, solution_red, solution_white):
          intro_text,
          paragraph1,
          paragraph2,
-         "Their whine profiles are shown below."
+         "Profiles are shown below."
     ]
     
     return text

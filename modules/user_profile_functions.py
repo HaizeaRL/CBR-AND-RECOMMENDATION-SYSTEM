@@ -8,12 +8,11 @@ from math import pi
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image as PlatypusImage, Table, TableStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, PageBreak, Spacer, Image as PlatypusImage, Table, TableStyle
 from markdown2 import markdown  # Use markdown2 for better HTML conversion
 from bs4 import BeautifulSoup  # Use BeautifulSoup for parsing HTML
 from reportlab.lib import colors
 from datetime import datetime
-
 
 # wine catalogues 
 df_red = pd.read_parquet(os.path.join("../data", "red_wines_clustered.parquet"), engine ="pyarrow")
@@ -327,10 +326,10 @@ def create_profile_text(user_data):
     # Build the final markdown text for the profile
     profile_text = [
         f"# {title}\n",      
-        f"{first_paragraph}", 
+        f"{first_paragraph}\n\n", 
         "## Zones Distribution:\n",
         "Your tendency for wines by zones is as follows:\n\n",
-        f"{zones_distribution}",
+        f"{zones_distribution}\n\n",
         "## Tasting Preferences:\n"
         "Based on wine descriptors, your wine tasting preferences are distributed as follows:\n\n"
     ]
@@ -501,25 +500,22 @@ def create_comparative_plot_title (type, solution_df):
         orig_ref = solution_df['Selected'][0]
         sim_ref = solution_df['Nearest'][0]
         zone = solution_df['Nearest'][len(solution_df)-1]
-        title = f"Taste comparation between {type} wines: #{orig_ref} and #{sim_ref} ({zone})"
+        title = f"Taste comparation between {type} wines: #{orig_ref+1} and #{sim_ref+1} ({zone})"
     else:
         orig_ref = solution_df['Selected'][0]
         sim_ref = solution_df['Nearest'][0]
         zone = solution_df['Nearest'][len(solution_df)-1]
-        title = f"Taste comparation between {type} wines: #{orig_ref} and #{sim_ref} ({zone})"
+        title = f"Taste comparation between {type} wines: #{orig_ref+1} and #{sim_ref+1} ({zone})"
 
     return title
 
-def create_comparative_plots(user_data, user_red_cat, user_white_cat ,
-                            solution_red, solution_white, save_path):
+def create_comparative_plots(user_data, solution_red, solution_white, save_path):
     
     """
     Function that generates comparative radar plots.
 
     Parameters:
         user_data: users wine profile.
-        user_red_cat (dataframe): users red wine catalogue. 
-        user_white_cat  (dataframe): users white wine catalogue.
         solution_red: red wine recomendation if correspond.
         solution_white: white wine recommendation if correspond.
         save_path: path where to save the plots.
@@ -538,14 +534,14 @@ def create_comparative_plots(user_data, user_red_cat, user_white_cat ,
         # red wines comparative plot
         title = create_comparative_plot_title ("red", solution_red)
         red_png_title = f"Red_comparation_{user_data['user']}_{current_date_str}.png"
-        create_comparative_radar_plot(user_red_cat.loc[solution_red["Selected"][0]],
-                                      user_red_cat.loc[solution_red["Nearest"][0]],
+        create_comparative_radar_plot(df_red.loc[solution_red["Selected"][0]],
+                                      df_red.loc[solution_red["Nearest"][0]],
                                       title, save_path, red_png_title)
         # white wines comparative plot
         title = create_comparative_plot_title ("white", solution_white)
         white_png_title = f"White_comparation_{user_data['user']}_{current_date_str}.png"
-        create_comparative_radar_plot(user_white_cat.loc[solution_white["Selected"][0]],
-                                      user_white_cat.loc[solution_white["Nearest"][0]],
+        create_comparative_radar_plot(df_white.loc[solution_white["Selected"][0]],
+                                      df_white.loc[solution_white["Nearest"][0]],
                                       title, save_path, white_png_title)
 
     elif user_data["distribution"] == "more_white":
@@ -553,84 +549,128 @@ def create_comparative_plots(user_data, user_red_cat, user_white_cat ,
         # white wines comparative plot
         title = create_comparative_plot_title ("white", solution_white)
         white_png_title = f"White_comparation_{user_data['user']}_{current_date_str}.png"
-        create_comparative_radar_plot(user_white_cat.loc[solution_white["Selected"][0]],
-                                      user_white_cat.loc[solution_white["Nearest"][0]],
+        create_comparative_radar_plot(df_white.loc[solution_white["Selected"][0]],
+                                      df_white.loc[solution_white["Nearest"][0]],
                                       title, save_path, white_png_title)
     else:
 
         # red wines comparative plot
         title = create_comparative_plot_title ("red", solution_red)
         red_png_title = f"Red_comparation_{user_data['user']}_{current_date_str}.png"
-        create_comparative_radar_plot(user_red_cat.loc[solution_red["Selected"][0]],
-                                      user_red_cat.loc[solution_red["Nearest"][0]],
+        create_comparative_radar_plot(df_red.loc[solution_red["Selected"][0]],
+                                      df_red.loc[solution_red["Nearest"][0]],
                                       title, save_path, red_png_title)
     return red_png_title, white_png_title
 
+def add_images_based_on_distribution(story, user_data, report_tmp, red_png_title, white_png_title):
+    """
+    Function to add images based on the user's distribution preference.
+    
+    Parameters:
+        story (list): The list of story elements for the PDF.
+        user_data (dict): User's data including distribution preference.
+        report_tmp (str): Path to the temporary report directory.
+        red_png_title (str): Filename for the red wine comparison image.
+        white_png_title (str): Filename for the white wine comparison image.
+    """
+    if user_data["distribution"] == "equal":
+        # Add both images as a table
+        comp_image1_path = os.path.join(report_tmp, red_png_title)
+        comp_image2_path = os.path.join(report_tmp, white_png_title)
+        story.append(create_image_table(comp_image1_path, comp_image2_path))
+    
+    elif user_data["distribution"] == "more_red":
+        # red path
+        comp_image1_path = os.path.join(report_tmp, red_png_title)
+        image_height = 3 * inch
+        image_width = 5.5 * inch
 
-def create_recomendation_pdf(user_data, user_red_cat, user_white_cat , user_id, 
-                            solution_red, solution_white, recommendation_text):
+        image1 = PlatypusImage(comp_image1_path)
+        image1.drawHeight = image_height
+        image1.drawWidth = image_width
+        story.append(image1)
+    else:
+        # red path
+        comp_image1_path = os.path.join(report_tmp, white_png_title)
+        image_height = 3 * inch
+        image_width = 5.5 * inch
+
+        image1 = PlatypusImage(comp_image1_path)
+        image1.drawHeight = image_height
+        image1.drawWidth = image_width
+        story.append(image1)
+
+    story.append(Spacer(1, 12))  # Add space after images
+
+def create_recomendation_pdf(user_data, user_red_cat, user_white_cat, user_id, 
+                              solution_red, solution_white, recommendation_text):
     """
     Function that generates elements to add to pdf and compose report pdf.
     Elements created to add: 
      - Markdown text composed by paragraph and table for user profile definition.
      - Corresponding radar plots for each wine type profile of user.
-     - Recomendation markdown text, comparing reference wine with recommended one.
+     - Recommendation markdown text, comparing reference wine with recommended one.
      - Recommendation comparative radar plots.     
 
     Parameters:
-        user_data: users wine profile.
-        user_red_cat (dataframe): users red wine catalogue. 
-        user_white_cat  (dataframe): users white wine catalogue.
+        user_data (dict): User's wine profile.
+        user_red_cat (dataframe): User's red wine catalogue. 
+        user_white_cat (dataframe): User's white wine catalogue.
         user_id (str): User identification reference.
-        solution_red: red wine recomendation if correspond.
-        solution_white: white wine recommendation if correspond.
-        recommendation_text (str): recommendation text to add to recommendation pdf.
+        solution_red: Red wine recommendation, if applicable.
+        solution_white: White wine recommendation, if applicable.
+        recommendation_text (str): Recommendation text to add to recommendation pdf.
 
     Returns:
-       Creates recommendation pdf based on user profile.
+        str: Path to the generated recommendation PDF.
     """   
-    
-    # create temporal data
-    report_tmp, title_red, title_white, markdown_text = create_user_profiles_elements(user_data, user_red_cat, 
-                                                                                      user_white_cat, user_id)
+    # Create temporal data
+    report_tmp, title_red, title_white, markdown_text = create_user_profiles_elements(
+        user_data, user_red_cat, user_white_cat, user_id
+    )
 
-    # create corresponding comparative radar plots
-    red_png_title, white_png_title = create_comparative_plots(user_data, user_red_cat, user_white_cat ,
-                                                               solution_red, solution_white, report_tmp)
-    
-    # create a folder to save last report
+    # Create corresponding comparative radar plots
+    red_png_title, white_png_title = create_comparative_plots(
+        user_data, solution_red, solution_white, report_tmp
+    )
+
+    # Create a folder to save the last report
     pdf_path = report_tmp.rsplit('_tmp', 1)[0]
     os.makedirs(pdf_path, exist_ok=True)
     
-    # create pdf file name
+    # Create pdf file name
     current_date_str = datetime.now().strftime("%Y-%m-%d")
     pdf_filename = f"user_{user_id}_recomendation_{current_date_str}.pdf"
     
     # Create a PDF canvas    
-    output_file = os.path.join(pdf_path,pdf_filename)
+    output_file = os.path.join(pdf_path, pdf_filename)
     doc = SimpleDocTemplate(output_file, pagesize=letter)
     story = []
     
     # Add text content (Markdown or plain text)
     styles = getSampleStyleSheet()
     story.extend(parse_markdown_text(markdown_text, styles))
+    story.append(Spacer(1,12))
     
-    # Add images
+    # Add user profile images
     image1_name = f"{title_red}_user_{str(user_id)}.png"
     image2_name = f"{title_white}_user_{str(user_id)}.png"
-    image1_path = os.path.join(report_tmp,image1_name)
-    image2_path = os.path.join(report_tmp,image2_name)
+    image1_path = os.path.join(report_tmp, image1_name)
+    image2_path = os.path.join(report_tmp, image2_name)
     story.append(create_image_table(image1_path, image2_path))
-    story.append(Spacer(1, 12))  # Add some space after images
+ 
+    # Insert a page break 
+    story.append(PageBreak())
 
     # Add recommendation text to pdf
     story.extend(parse_markdown_text(recommendation_text, styles))
 
-    #if user_data["distribution"] == "equal":
+    # Add comparative images based on the user's distribution
+    add_images_based_on_distribution(story, user_data, report_tmp, red_png_title, white_png_title)
 
-        
     # Build the PDF
     doc.build(story)
+    
     return output_file
 
 def key_from_value(value):
