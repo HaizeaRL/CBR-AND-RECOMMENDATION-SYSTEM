@@ -206,4 +206,4 @@ The Personalized Wine Recommendation System prompts the user for their identific
 
 The results are compiled and presented in a recommendation file, as illustrated in the accompanying example image.
 
-![resulted_pdf](./img/pdf_example-10-16.png)
+![resulted_pdf](./img/pdf_example.png)
