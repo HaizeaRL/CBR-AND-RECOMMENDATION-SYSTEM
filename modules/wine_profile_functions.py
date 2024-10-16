@@ -21,7 +21,12 @@ range_dict = {"residual sugar" : ["Dry", "Semi-Dry", "Sweet"],
      "Body_tmp": ["Light", "Medium", "Full-Bodied"],
      "Vibrancy_tmp": ["Liveliness", "Live", "Brilliant"]}
 
-
+# relation of columns and new descriptors
+descriptor_dict = {"residual sugar" : "Sweetness",
+     "chlorides": "Nuance",
+     "sulphates": "Tannicity",
+     "Body_tmp": "Body",
+     "Vibrancy_tmp": "Vibrancy"}
 
 # Each descriptor position map
 descriptor_values = {"Sweetness":["Dry", "Semi-Dry", "Sweet"],
@@ -152,7 +157,7 @@ def wine_profiling(path, filename):
     # detect if exist duplicates & remove if any
     duplicate_indices = df[df.duplicated(keep=False)].index
     if len(duplicate_indices) >0:
-        df = df.drop(duplicate_indices).reset_index()
+        df = df.drop(duplicate_indices).reset_index(drop=True)
 
     # create complex descriptors (temporal new values used to categorized)
     new_col = "Body"
