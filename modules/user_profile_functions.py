@@ -501,12 +501,13 @@ def create_comparative_plot_title (type, solution_df):
         orig_ref = solution_df['Selected'][0]
         sim_ref = solution_df['Nearest'][0]
         zone = solution_df['Nearest'][len(solution_df)-1]
-        title = f"Taste comparation between {type} wines ref: #{orig_ref} and #{sim_ref} ({zone})"
+        title = f"Taste comparation between {type} wines: #{orig_ref} and #{sim_ref} ({zone})"
     else:
         orig_ref = solution_df['Selected'][0]
         sim_ref = solution_df['Nearest'][0]
         zone = solution_df['Nearest'][len(solution_df)-1]
-        title = f"Taste comparation between {type} wines ref: #{orig_ref} and #{sim_ref} ({zone})"
+        title = f"Taste comparation between {type} wines: #{orig_ref} and #{sim_ref} ({zone})"
+
     return title
 
 def create_comparative_plots(user_data, user_red_cat, user_white_cat ,
@@ -532,34 +533,36 @@ def create_comparative_plots(user_data, user_red_cat, user_white_cat ,
     red_png_title = ""
     white_png_title = ""
     current_date_str = datetime.now().strftime("%Y-%m-%d")
-    if (user_data["distribution" == "equal"]):
-  
+    if user_data["distribution"] == "equal":
+
         # red wines comparative plot
         title = create_comparative_plot_title ("red", solution_red)
-        red_png_title = f"Red_comparation_{user_data["user"]}_{current_date_str}.png"
-        create_comparative_radar_plot(user_red_cat.iloc[solution_red["Selected"][0]],
-                                      user_red_cat.iloc[solution_red["Nearest"][0]],
+        red_png_title = f"Red_comparation_{user_data['user']}_{current_date_str}.png"
+        create_comparative_radar_plot(user_red_cat.loc[solution_red["Selected"][0]],
+                                      user_red_cat.loc[solution_red["Nearest"][0]],
                                       title, save_path, red_png_title)
         # white wines comparative plot
         title = create_comparative_plot_title ("white", solution_white)
-        white_png_title = f"White_comparation_{user_data["user"]}_{current_date_str}.png"
-        create_comparative_radar_plot(user_white_cat.iloc[solution_white["Selected"][0]],
-                                      user_white_cat.iloc[solution_white["Nearest"][0]],
+        white_png_title = f"White_comparation_{user_data['user']}_{current_date_str}.png"
+        create_comparative_radar_plot(user_white_cat.loc[solution_white["Selected"][0]],
+                                      user_white_cat.loc[solution_white["Nearest"][0]],
                                       title, save_path, white_png_title)
 
-    elif (user_data["distribution" == "more_white"]):
+    elif user_data["distribution"] == "more_white":
+
         # white wines comparative plot
         title = create_comparative_plot_title ("white", solution_white)
-        white_png_title = f"White_comparation_{user_data["user"]}_{current_date_str}.png"
-        create_comparative_radar_plot(user_white_cat.iloc[solution_white["Selected"][0]],
-                                      user_white_cat.iloc[solution_white["Nearest"][0]],
+        white_png_title = f"White_comparation_{user_data['user']}_{current_date_str}.png"
+        create_comparative_radar_plot(user_white_cat.loc[solution_white["Selected"][0]],
+                                      user_white_cat.loc[solution_white["Nearest"][0]],
                                       title, save_path, white_png_title)
     else:
+
         # red wines comparative plot
         title = create_comparative_plot_title ("red", solution_red)
-        red_png_title = f"Red_comparation_{user_data["user"]}_{current_date_str}.png"
-        create_comparative_radar_plot(user_red_cat.iloc[solution_red["Selected"][0]],
-                                      user_red_cat.iloc[solution_red["Nearest"][0]],
+        red_png_title = f"Red_comparation_{user_data['user']}_{current_date_str}.png"
+        create_comparative_radar_plot(user_red_cat.loc[solution_red["Selected"][0]],
+                                      user_red_cat.loc[solution_red["Nearest"][0]],
                                       title, save_path, red_png_title)
     return red_png_title, white_png_title
 
@@ -622,6 +625,9 @@ def create_recomendation_pdf(user_data, user_red_cat, user_white_cat , user_id,
 
     # Add recommendation text to pdf
     story.extend(parse_markdown_text(recommendation_text, styles))
+
+    #if user_data["distribution"] == "equal":
+
         
     # Build the PDF
     doc.build(story)
@@ -693,13 +699,18 @@ def create_comparative_radar_plot(row, row2, title, save_path, image_title):
     # nearest
     ax[0].plot(angles, values1, linewidth=2, linestyle='solid', label="nearest")
     ax[0].fill(angles, values1, alpha=0.25)  
-    
+    ax[0].legend()
+
     # Summary on the right side
     ax[1].axis('off')  # Turn off the axis
 
-    # Add summary text, moving it further to the left
-    summary_text = "\n".join([f"$\\bf{{{cat}}}$:\n{row[cat]} vs {row2[cat]} \n" + f"(V:{round(row[key_from_value(cat)],2)}) vs (V:{round(row2[key_from_value(cat)],2)})"
-                               for i, cat in enumerate(categories)])
+    # Add summary text, moving it further to the left    
+    summary_text = "\n".join([
+        f"$\\bf{{{cat}}}$ " + 
+        f":\n{row[cat]} vs {row2[cat]}\n" + 
+        f"(V:{round(row[key_from_value(cat)], 2)}) vs (V:{round(row2[key_from_value(cat)], 2)})"
+        for i, cat in enumerate(categories)
+    ])
     ax[1].text(-0.1, 0.08, summary_text, fontsize=16, ha='left', va='center', wrap=True) 
     
     # Adjust layout for minimal spacing

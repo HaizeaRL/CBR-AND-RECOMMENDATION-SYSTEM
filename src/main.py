@@ -18,9 +18,9 @@ print("Based on your wine profile, I will provide you new wine recommendations. 
 
 # Get users data
 user_data, user_red_cat, user_white_cat =  upf.get_specific_user_info (user_list, user_id)
-    
+   
 # Get recommendation data
-distribution, solution_red, solution_white = wrf.recommend_wines(user_data)
+distribution, solution_red, solution_white = wrf.recommend_wines(user_data, user_red_cat, user_white_cat)
 recommendation_text = wrf.create_recommendation_text (distribution, solution_red, solution_white)
 
 # Complete recommendation pdf

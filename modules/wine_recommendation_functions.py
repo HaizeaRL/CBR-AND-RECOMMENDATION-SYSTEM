@@ -4,10 +4,6 @@ import numpy as np
 import pandas as pd
 import os
 
-# wines catalogue
-df_red = pd.read_parquet(os.path.join("../data", "red_wines_clustered.parquet"), engine = "pyarrow")
-df_white = pd.read_parquet( os.path.join("../data", "white_wines_clustered.parquet"), engine = "pyarrow")
-
 # Functions
 def determine_favorite_zone (zones):
     """
@@ -118,10 +114,10 @@ def get_nearest_wine(df, selected_row_idx , distance):
     
     # Convert the dictionaries to pandas Series
     to_remove = ['distance',"Cluster","Centroid"]
-    a = [cols for cols in df.columns if cols not in to_remove]
+    rest_of_columns = [cols for cols in df.columns if cols not in to_remove] # only interested columns
     
-    selected_series = pd.Series(selected_row[a])
-    nearest_series = pd.Series(nearest_row[a])
+    selected_series = pd.Series([selected_row.name] + list(selected_row[rest_of_columns])) # add index as first element
+    nearest_series = pd.Series([nearest_row.name] + list(nearest_row[rest_of_columns])) # add index as first element
 
    # Create the DataFrame
     solution = pd.DataFrame({
@@ -131,12 +127,14 @@ def get_nearest_wine(df, selected_row_idx , distance):
     # return selected and nearest row
     return solution
 
-def recommend_wines (user_data):
+def recommend_wines (user_data,  user_red_cat, user_white_cat):
     """
     Function that select reference wine and obtain similar wine as recommendation.
 
     Parameters:
         user_data : users wine preferences. User wine profile.
+        user_red_cat: users red wine catalogue.
+        user_white_cat: users white wine catalogue.
 
     Returns: 
         user_data["distribution"] (str): users distribution. Equal, More_white or More_red to determine if both
@@ -155,14 +153,14 @@ def recommend_wines (user_data):
         selected_red_idx = select_wine_from_favorite_zone (user_data["red_distribution"], red)
         
         # Get nearest red wine and get result in comparative way
-        solution_red = get_nearest_wine(df_red, selected_red_idx , "euclidean")
+        solution_red = get_nearest_wine(user_red_cat, selected_red_idx , "euclidean")
                
         # Determine white reference wine
         white = determine_favorite_zone(user_data["white_distribution"])
         selected_white_idx = select_wine_from_favorite_zone (user_data["white_distribution"], white)  
         
         # Get nearest white wine and get result in comparative way
-        solution_white = get_nearest_wine(df_white, selected_white_idx , "euclidean")
+        solution_white = get_nearest_wine(user_white_cat, selected_white_idx , "euclidean")
         
     elif user_data["distribution"] == "more_white":
         
@@ -171,7 +169,7 @@ def recommend_wines (user_data):
         selected_white_idx = select_wine_from_favorite_zone (user_data["white_distribution"], white)
         
         # Get nearest white wine and get result in comparative way
-        solution_white = get_nearest_wine(df_white, selected_white_idx , "euclidean")
+        solution_white = get_nearest_wine(user_white_cat, selected_white_idx , "euclidean")
                     
     else:
         
@@ -180,7 +178,7 @@ def recommend_wines (user_data):
         selected_red_idx = select_wine_from_favorite_zone (user_data["red_distribution"], red)
         
         # Get nearest red wine and get result in comparative way
-        solution_red = get_nearest_wine(df_red, selected_red_idx , "euclidean")
+        solution_red = get_nearest_wine(user_red_cat, selected_red_idx , "euclidean")
         
     return user_data["distribution"] , solution_red , solution_white
 
