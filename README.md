@@ -202,8 +202,19 @@ For example, a user object may look like this:
 
 ## Personalized Wine Recommendation System (main.py)
 
-The Personalized Wine Recommendation System prompts the user for their identification. Once the user reference is established, their wine preference profile is created. For instance, if the user indicates a preference for more white wines, the system determines the most favorable wine zone based on this preference. A reference wine is then selected from this zone. Using Euclidean distance, the system identifies wines that are most similar to the reference wine. 
+The **Personalized Wine Recommendation System** prompts the user for their identification. Once the user reference is established, their wine preference profile is created. For instance, if the user indicates a preference for more white wines, the system determines the most favorable wine zone based on this preference. A reference wine is then selected from this zone. Using Euclidean distance, the system identifies wines that are most similar to the reference wine.
 
-The results are compiled and presented in a recommendation file, as illustrated in the accompanying example image.
+Later, various intermediate elements are created to compose the resulting recommendation PDF file, including:
+
+- **Markdown text** composed of a paragraph and table for user profile definition.
+- **Radar plots** corresponding to each wine type profile of the user.
+- **Recommendation markdown text**, which compares the reference wine with the recommended one.
+- **Comparative radar plots** for the recommendations.
+
+**Note**: These elements are saved in the `report_tmp` folder, with each element identified by the user ID and the current date.
+
+The final results are composed of these intermediate elements, generating a PDF file, as illustrated in the accompanying example image.
 
 ![resulted_pdf](./img/pdf_example.png)
+
+**Note**: This final result is saved in the `report` folder, identified by the user ID and the current date.
