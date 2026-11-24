@@ -44,7 +44,7 @@ By checking out the `final_results` branch, you can explore the resulting data a
 
 ## Installation and Run Steps
 
-To get started with this project, please follow these steps:
+To get started with this project, please follow these steps (instructions tested on Windows with PowerShell):
 
 ### Prerequisites
 
@@ -79,12 +79,12 @@ To use Matplotlib in a Docker container with GUI support, you'll need to configu
    ```bash
    docker build -t wine_app .
    ```
-2. **Run the Docker Image**:
+3. **Run the Docker Image**:
     Replace `<ip_address>` with corresponding value:
     ```bash
     docker run --rm -it --env=DISPLAY=<ip_address>:0 -v="$(Get-Location):/app" wine_app
     ```
-3. **Navigate to corresponding script and run the script**:
+4. **Navigate to corresponding script and run the script**:
    First, you'll need to create the database using `create_data_base.py`, which involves categorizing wines and simulating users and their wine preferences:
     ```bash
     cd src
@@ -96,7 +96,7 @@ To use Matplotlib in a Docker container with GUI support, you'll need to configu
     cd src
     python main.py
    ```
-4. **Retrieve resuts locally**
+5. **Retrieve results locally**
    The results are saved in the `report` folder within the Docker container. 
    
    To retrieve the PDF file, open a command prompt, identify the running Docker container:
@@ -181,7 +181,7 @@ For example, a user object may look like this:
     "red_wines": 8,
     "white_wines": 6,
     "red_distribution": [
-        {"Zone_A": 1,"Zone_A_rows": [058]},
+        {"Zone_A": 1,"Zone_A_rows": [58]},
         {"Zone_B": 1,"Zone_B_rows": [771]},
         {"Zone_C": 2,"Zone_C_rows": [827,915]},
         {"Zone_D": 2,"Zone_D_rows": [1017,475]},
